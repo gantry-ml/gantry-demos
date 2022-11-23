@@ -7,7 +7,7 @@ ENV_VARS = dotenv_values(TUTORIAL_ROOT_DIR / ".env")
 
 # Gantry settings
 GANTRY_API_KEY = "you must have a valid api key"
-GANTRY_APPLICATION_NAME = "Gantry Tutorial Application"
+GANTRY_APPLICATION_NAME = "Gantry_Tutorial_Application"
 GANTRY_APPLICATION_VERSION = 0
 
 # Model settings
