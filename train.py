@@ -1,4 +1,5 @@
 from loguru import logger
+import uuid
 from sklearn.linear_model import LogisticRegression
 import gantry
 import pandas as pd
@@ -13,14 +14,10 @@ from loan_utils import (
 from settings import (
     GANTRY_API_KEY,
     GANTRY_APPLICATION_NAME,
-    GANTRY_APPLICATION_VERSION,
 )
 
 # Initialize Gantry
-gantry.init(
-    api_key=GANTRY_API_KEY,
-    environment=f"train-{pd.Timestamp.now().isoformat()}",
-)
+gantry.init(api_key=GANTRY_API_KEY)
 
 
 def train():
@@ -54,10 +51,13 @@ def train():
     # Log to Gantry
     gantry.log_records(
         GANTRY_APPLICATION_NAME,
-        version=GANTRY_APPLICATION_VERSION,
         inputs=X_train.to_dict("records"),
         outputs=y_pred.to_dict("records"),
         as_batch=True,
+        tags={
+            "env": "dev",
+            "version": str(uuid.uuid1())
+        }
     )
 
 
