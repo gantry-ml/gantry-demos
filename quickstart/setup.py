@@ -1,6 +1,5 @@
 import argparse
 import pandas as pd
-import os
 import datetime
 import boto3
 import tempfile
@@ -9,7 +8,7 @@ from config import logger, GantryConfig, DataStorageConfig
 import gantry
 import gantry.query as gantry_query
 
-gantry.init(api_key=GantryConfig.GANTRY_API_KEY)
+gantry.init(api_key=GantryConfig.GANTRY_API_KEY, send_in_background=False)
 
 def retrieve_data() -> pd.DataFrame:
     logger.info("Retrieving demo data from public S3 bucket")
@@ -74,7 +73,7 @@ def create_views(application_name: str):
         name=ACCEPTED_VIEW,
         start_time=THIS_WEEK_START,
         end_time=THIS_WEEK_END,
-        data_filters=_correction_filter_helper(True) + _env_filter_helper()
+        data_filters=_env_filter_helper() + _correction_filter_helper(True) 
     )
 
     # Rejected view
@@ -84,19 +83,21 @@ def create_views(application_name: str):
         name=REJECTED_VIEW,
         start_time=THIS_WEEK_START,
         end_time=THIS_WEEK_END,
-        data_filters=_correction_filter_helper(True) + _env_filter_helper()
+        data_filters=_env_filter_helper() + _correction_filter_helper(True)
     )
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--load-data", action="store_true")
     parser.add_argument("--create-views", action="store_true")
     args = parser.parse_args()
-    if args.load_data:
-        data = retrieve_data()
-        load_to_gantry(data, GantryConfig.GANTRY_PROD_ENV)
-    if args.create_views:
-        create_views(GantryConfig.GANTRY_APP_NAME)
+    if not (args.load_data or args.create_views):
+        logger.error("Must pass either '--load-data' or '--create-views'")
+    else:
+        if args.load_data:
+            data = retrieve_data()
+            load_to_gantry(data, GantryConfig.GANTRY_PROD_ENV)
+        if args.create_views:
+            create_views(GantryConfig.GANTRY_APP_NAME)
     
     
