@@ -19,3 +19,9 @@ class GantryConfig:
 
 # A location for pulling the model
 HF_MODEL_PATH = "prithivida/grammar_error_correcter_v1"
+
+# Storage Config
+@dataclass
+class DataStorageConfig:
+    S3_BUCKET: str = "gantry-demo-data"
+    S3_OBJECT: str = "gec-demo-data.csv"

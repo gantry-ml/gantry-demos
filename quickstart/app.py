@@ -20,7 +20,6 @@ def build_diff_layout(txt1, txt2):
     dmp = dmp_module()
     diff = dmp.diff_main(txt1, txt2)
     dmp.diff_cleanupSemantic(diff)
-
     my_component(diff=diff)
 
 st.set_page_config(

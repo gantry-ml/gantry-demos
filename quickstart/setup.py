@@ -2,20 +2,31 @@ import argparse
 import pandas as pd
 import os
 import datetime
+import boto3
+import tempfile
 
-from config import logger, GantryConfig, DATA_DIR, HISTORICAL_DATA_FILE
+from config import logger, GantryConfig, DataStorageConfig
 import gantry
 import gantry.query as gantry_query
 
 gantry.init(api_key=GantryConfig.GANTRY_API_KEY)
 
-def load_to_gantry(data_file: str, gantry_env: str):
-    df = pd.read_csv(data_file, engine="c", lineterminator='\n')
+def retrieve_data() -> pd.DataFrame:
+    logger.info("Retrieving demo data from public S3 bucket")
+    tempfile_handle = tempfile.NamedTemporaryFile()
+    s3_client = boto3.client('s3')
+    s3_client.download_file(DataStorageConfig.S3_BUCKET, DataStorageConfig.S3_OBJECT, tempfile_handle.name)
+    df = pd.read_csv(tempfile_handle.name, engine="c", lineterminator='\n')
+    tempfile_handle.close()
+    return df
+
+def load_to_gantry(df: pd.DataFrame, gantry_env: str):
+    logger.info(f"Logging {len(df)} to Gantry environment {gantry_env}")
     gantry.log_records(
         application=GantryConfig.GANTRY_APP_NAME, 
         timestamps=[ts.to_pydatetime() for ts in pd.to_datetime(df["timestamp"])],
-        inputs=df["text"],
-        outputs=df["output"],
+        inputs=df[["text", "account_age_days", "username"]],
+        outputs=df["inference"],
         feedbacks=df["correction_accepted"],
         feedback_ids=df["uuid"].to_list(),
         tags={"env": gantry_env},
@@ -79,13 +90,13 @@ def create_views(application_name: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--eval", action="store_true")
-    parser.add_argument("--historical", action="store_true")
-    parser.add_argument("--create-views")
+    parser.add_argument("--load-data", action="store_true")
+    parser.add_argument("--create-views", action="store_true")
     args = parser.parse_args()
-    if args.historical:
-        # Generate and load historical data
-        load_to_gantry(os.path.join(DATA_DIR, HISTORICAL_DATA_FILE), GantryConfig.GANTRY_PROD_ENV)
-    if args.eval:
-        raise NotImplementedError()
+    if args.load_data:
+        data = retrieve_data()
+        load_to_gantry(data, GantryConfig.GANTRY_PROD_ENV)
+    if args.create_views:
+        create_views(GantryConfig.GANTRY_APP_NAME)
+    
     
