@@ -3,8 +3,7 @@ import pandas as pd
 from datasets import Dataset
 import torch
 from torch.utils.data import DataLoader
-
-from config import logger, HF_MODEL_PATH
+from config import logger, ModelConfig
 
 # Use Cuda device when available
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')

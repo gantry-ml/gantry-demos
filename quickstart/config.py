@@ -18,7 +18,10 @@ class GantryConfig:
     GANTRY_EVAL_ENV: str = "eval"
 
 # A location for pulling the model
-HF_MODEL_PATH = "prithivida/grammar_error_correcter_v1"
+@dataclass
+class ModelConfig:
+    HF_MODEL_PATH: str = "prithivida/grammar_error_correcter_v1"
+    MODEL_DIR = "./.temp_model"
 
 # Storage Config
 @dataclass

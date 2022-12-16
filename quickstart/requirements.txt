@@ -6,3 +6,4 @@ sentencepiece
 htbuilder
 diff-match-patch
 boto3
+datasets
