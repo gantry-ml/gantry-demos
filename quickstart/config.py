@@ -13,12 +13,15 @@ logger.setLevel(logging.INFO)
 @dataclass
 class GantryConfig:
     GANTRY_API_KEY: str = os.environ.get("GANTRY_API_KEY")
-    GANTRY_APP_NAME: str = "my-gec-app"
+    GANTRY_APP_NAME: str = "demo-gec-app"
     GANTRY_PROD_ENV: str = "prod"
     GANTRY_EVAL_ENV: str = "eval"
 
 # A location for pulling the model
-HF_MODEL_PATH = "prithivida/grammar_error_correcter_v1"
+@dataclass
+class ModelConfig:
+    HF_MODEL_PATH: str = "prithivida/grammar_error_correcter_v1"
+    MODEL_DIR = "./.temp_model"
 
 # Storage Config
 @dataclass

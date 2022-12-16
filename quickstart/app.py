@@ -2,19 +2,24 @@ import streamlit as st
 import gantry
 from diff_match_patch import diff_match_patch as dmp_module
 from gec_diff import my_component
-from config import GantryConfig
-from model import infer
+from config import GantryConfig, ModelConfig
+from model import ModelWrapper
 
 gantry.init(api_key=GantryConfig.GANTRY_API_KEY)
+model_wrapper = ModelWrapper(ModelConfig.MODEL_DIR)
 
 def correct_grammar(text):
-    corrected_sentence = infer(text)
+    corrected_sentence = model_wrapper.infer(text)
     gantry.log_record(
         application=GantryConfig.GANTRY_APP_NAME,
-        inputs=[text],
-        outputs=[corrected_sentence],
-        tags={"env": GantryConfig.GANTRY_PROD_ENV}
+        inputs={"text": text},
+        outputs={"inference": corrected_sentence},
+        tags={
+            "env": GantryConfig.GANTRY_PROD_ENV,
+            "test-tag": "my-test-data"
+        }
     )
+    return corrected_sentence
 
 def build_diff_layout(txt1, txt2):
     dmp = dmp_module()
@@ -28,7 +33,14 @@ st.set_page_config(
      layout="wide"
  )
 
-html_string = "<div style='display:inline-flex;flex-direction:column'><h1 style='padding:0;line-height:2rem'>Grammmar</h1><h6 style='align-self:flex-end;color:rgba(240,74,0,1)'>by Gantry</h6></div>"
+html_string = """
+    <div style='display:inline-flex;flex-direction:column'>
+        <h1 style='padding:0;line-height:2rem'>Grammmar</h1>
+        <h6 style='align-self:flex-end;color:rgba(240,74,0,1)'>
+            by Gantry
+        </h6>
+    </div>
+"""
 
 st.markdown(html_string, unsafe_allow_html=True)
 col1, col2 = st.columns(2)
@@ -44,9 +56,7 @@ GANTRY_API_KEY = "GRAMMAR-API-KEY"
 GANTRY_ENV = "production"
 
 # We initialize the Gantry client with an API key from our Gantry account
-gantry.init(
-    api_key=GANTRY_API_KEY
-)
+gantry.init(api_key=GANTRY_API_KEY)
 
 # Load our grammatical error correction model (and tokenizer) from Hugging Face 
 # https://huggingface.co/prithivida/grammar_error_correcter_v1
@@ -107,7 +117,6 @@ def infer(txt):
         st.stop()
     
     corrected = infer(doc)
-
     build_diff_layout(doc, corrected)
 
     '''
@@ -140,6 +149,6 @@ with col2:
     if not submit_button:
         st.stop()
 
-    corrected_gramformer = correct_grammar_gramformer(doc)
-
-    build_diff_layout(doc, corrected_gramformer)
+    corrected = correct_grammar(doc)
+    print(f"text:\n{doc}\n{corrected}")
+    build_diff_layout(doc, corrected)

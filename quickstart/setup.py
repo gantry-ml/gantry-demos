@@ -39,7 +39,7 @@ def _correction_filter_helper(correction_accepted: bool) -> list:
     return [{"boolean_query": correction_accepted, "feature_name": "feedback.correction_accepted"}]
 
 def _env_filter_helper() -> list:
-    return [{"category_query": ["production"], "dtype": "tag", "feature_name": "env"}]
+    return [{"category_query": [GantryConfig.GANTRY_PROD_ENV], "dtype": "tag", "feature_name": "env"}]
 
 LAST_WEEK_START, LAST_WEEK_END = _utc_time_helper(2022, 4, 16), _utc_time_helper(2022, 4, 22)
 THIS_WEEK_START, THIS_WEEK_END = LAST_WEEK_END, _utc_time_helper(2022, 4, 26)
@@ -99,5 +99,5 @@ if __name__ == "__main__":
             load_to_gantry(data, GantryConfig.GANTRY_PROD_ENV)
         if args.create_views:
             create_views(GantryConfig.GANTRY_APP_NAME)
-    
+
     
