@@ -1,0 +1,8 @@
+gantry
+streamlit
+transformers
+torch
+sentencepiece
+htbuilder
+diff-match-patch
+boto3
