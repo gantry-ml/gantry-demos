@@ -56,7 +56,9 @@ GANTRY_API_KEY = "GRAMMAR-API-KEY"
 GANTRY_ENV = "production"
 
 # We initialize the Gantry client with an API key from our Gantry account
-gantry.init(api_key=GANTRY_API_KEY)
+gantry.init(
+    api_key=GANTRY_API_KEY
+)
 
 # Load our grammatical error correction model (and tokenizer) from Hugging Face 
 # https://huggingface.co/prithivida/grammar_error_correcter_v1
@@ -150,5 +152,4 @@ with col2:
         st.stop()
 
     corrected = correct_grammar(doc)
-    print(f"text:\n{doc}\n{corrected}")
     build_diff_layout(doc, corrected)

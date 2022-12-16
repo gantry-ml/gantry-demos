@@ -99,5 +99,4 @@ if __name__ == "__main__":
             load_to_gantry(data, GantryConfig.GANTRY_PROD_ENV)
         if args.create_views:
             create_views(GantryConfig.GANTRY_APP_NAME)
-
     

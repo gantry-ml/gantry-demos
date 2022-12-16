@@ -3,7 +3,6 @@ import pandas as pd
 from datasets import Dataset
 import torch
 from torch.utils.data import DataLoader
-
 from config import logger, ModelConfig
 
 # Use Cuda device when available
@@ -19,10 +18,10 @@ class ModelWrapper():
         self._model = AutoModelForSeq2SeqLM.from_pretrained(model_dir).to(device)
         
     def _download_model(self):
-        logger.info(f"Downloading model with path {ModelConfig.HF_MODEL_PATH} from HuggingFace")
-        tokenizer = AutoTokenizer.from_pretrained(ModelConfig.HF_MODEL_PATH)
+        logger.info(f"Downloading model with path {HF_MODEL_PATH} from HuggingFace")
+        tokenizer = AutoTokenizer.from_pretrained(HF_MODEL_PATH)
         tokenizer.save_pretrained(self._model_dir)
-        model = AutoModelForSeq2SeqLM.from_pretrained(ModelConfig.HF_MODEL_PATH)
+        model = AutoModelForSeq2SeqLM.from_pretrained(HF_MODEL_PATH)
         model.save_pretrained(self._model_dir)
 
     def _tokenize_sentence(self, text: str): 
