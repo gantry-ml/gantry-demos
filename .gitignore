@@ -105,7 +105,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+# Commented this out to get our code working nicely
+# build/
 develop-eggs/
 downloads/
 eggs/
