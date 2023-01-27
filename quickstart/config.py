@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 @dataclass
 class GantryConfig:
     GANTRY_API_KEY: str = os.environ.get("GANTRY_API_KEY")
-    GANTRY_APP_NAME: str = "my-gec-app"
+    GANTRY_APP_NAME: str = "GEC Application"
     GANTRY_PROD_ENV: str = "prod"
     GANTRY_EVAL_ENV: str = "eval"
 
