@@ -9,6 +9,7 @@ Specifically, it is meant to demonstrate key patterns and practices around:
 3. Generating predictions with a pretrained ML model
 4. Simulating a pattern of user feedback
 5. Logging complex data to Gantry
+6. Making an interactive application that logs data to Gantry
 
 ## Instructions
 

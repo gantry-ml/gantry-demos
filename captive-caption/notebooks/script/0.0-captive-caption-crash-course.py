@@ -9,6 +9,7 @@
 # 3. Generating predictions with a pretrained ML model
 # 4. Simulating a pattern of user feedback
 # 5. Logging image data to Gantry
+# 6. Creating an interactive app using the model and Gantry logging
 # 
 # With a basic handle on the above, you will be well set-up to explore some of your own ideas, test things out with teamates, and iterate your way to a great demo.
 # 
@@ -49,6 +50,7 @@ import datasets
 from dotenv import dotenv_values
 from faker import Faker
 import gantry
+import gradio as gr
 from IPython import display
 from loguru import logger
 import pandas as pd
@@ -222,8 +224,12 @@ PROCESSOR = AutoProcessor.from_pretrained("nvidia/groupvit-gcc-redcaps")
 MODEL = GroupViTModel.from_pretrained("nvidia/groupvit-gcc-redcaps")
 
 
-def rank_captions(captions, image_url, processor=PROCESSOR, model=MODEL):
-    image = Image.open(requests.get(image_url, stream=True).raw)
+def rank_captions(
+    captions, image_url=None, image=None, processor=PROCESSOR, model=MODEL
+):
+    if image_url:
+        image = Image.open(requests.get(image_url, stream=True).raw)
+
     inputs = processor(
         text=captions,
         images=image,
@@ -407,8 +413,9 @@ to_gantry.head()
 
 gantry.init(GANTRY_API_KEY)
 
+DEMO_APPLICATION = "casey-captive-caption"
 gantry.log_records(
-    application="casey-captive-caption",
+    application=DEMO_APPLICATION,
     inputs=to_gantry[INPUTS],
     outputs=to_gantry[OUTPUTS],
     feedbacks=to_gantry[FEEDBACK],
@@ -418,9 +425,70 @@ gantry.log_records(
 )
 
 
-# # What's next?
+# # Putting it all together: Make an interactive demo!
 # 
-# - make the model interactive with `gradio`
+# [Gradio](https://gradio.app/quickstart/) makes it super easy for us to demo CaptiveCaption with live Gantry logging. The few lines of code below will create an in-notebook app where
+# * users can upload images directly
+# * our simulated captions will be generated automatically
+# * the resulting captions will be ranked
+# * the image will be uploaded to s3
+# * all of the relvant data will be logged to Gantry under the `gradio` environment tag
+
+def upload_image_to_s3(image, s3_prefix=DEMO_PATH):
+    with tempfile.NamedTemporaryFile(suffix=".JPEG") as temp:
+        temp_path = Path(temp.name)
+        image.save(temp)
+        with temp_path.open("rb") as image_file:
+            image_bytes = image_file.read()
+            image_uri = str(s3_prefix / temp_path.name)
+            with CloudPath(image_uri).open("wb") as cloud_image_file:
+                cloud_image_file.write(image_bytes)
+    return image_uri
+
+
+def predict(image, user_caption=None, image_uri_col=IMAGE_URI_COL):
+    rec_captions = generate_captions(image)
+    if user_caption:
+        rec_captions.append(user_caption)
+    # note we're passing a PIL image directly instead of an url
+    ranked_captions = rank_captions(rec_captions, image=image)
+    best_caption_text, best_caption_prob = get_best_caption(ranked_captions)
+
+    # Log to Gantry
+    image_uri = upload_image_to_s3(image)
+    gantry.log_record(
+        application=DEMO_APPLICATION,
+        inputs={
+            "uuid": str(uuid.uuid4()),
+            "state": faker.state(),
+            image_uri_col: image_uri,
+        },
+        outputs={
+            "best_caption_text": best_caption_text,
+            "best_caption_prob": best_caption_prob,
+        },
+        # no feedback hook right now!
+        tags={"env": "gradio"},
+    )
+    return ranked_captions
+
+
+demo = gr.Interface(
+    title="CaptiveCaption",
+    fn=predict,
+    inputs=[
+        gr.Image(type="pil"),
+        gr.Text(placeholder="See how your own caption ranks against generated ones!"),
+    ],
+    outputs=gr.Label(num_top_classes=5),
+)
+demo.launch()
+
+
+# # What's next?
 # - cache the processed results for faster demo deployment
 # - improve the strngth of the signal for the problem in Gantry
-# - **bonus** how do we curate a dataset of cat photos?
+# - **bonus: close the loop** how do we *curate* a dataset of cat photos?
+
+
+
