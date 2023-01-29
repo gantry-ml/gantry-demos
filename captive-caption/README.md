@@ -1,8 +1,8 @@
 # CaptiveCaption Crash Course
 
-CaptiveCaption is a silly demo idea meant to be simple enough to emphasize some key concepts in build a Gantry Demo, but complex enough to enable you to build a more complex and useful demo.
+CaptiveCaption is a silly demo idea meant to be simple enough to emphasize some key concepts in building a Gantry Demo, but complex enough to enable you to build a more complete product demo from scratch.
 
-Specifically, it is meant to demonstrate key patterns and practices around:
+Specifically, it is meant to demonstrate some key patterns and practices around:
 
 1. Exploring datasets
 2. Simulating user behavior
