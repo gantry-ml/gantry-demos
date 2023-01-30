@@ -4,9 +4,11 @@ from model import ModelWrapper
 import gradio as gr
 from difflib import Differ
 import uuid
+import os
 
 gantry.init(api_key=GantryConfig.GANTRY_API_KEY)
 model_wrapper = ModelWrapper(ModelConfig.MODEL_DIR)
+gantry_logo = os.path.join(os.path.dirname(__file__), "gantry-logo.png")
 
 def correct_grammar(text, join_key):
     corrected_sentence = model_wrapper.infer(text)
@@ -43,6 +45,7 @@ def send_feedback(join_key):
 
 with gr.Blocks() as gec_app:
     join_key = str(uuid.uuid1())
+    gr.Image(gantry_logo)
     gr.Markdown("Welcome to the Gantry Grammar Error Corrector!")
 
     text_input = gr.Textbox(
@@ -55,8 +58,8 @@ with gr.Blocks() as gec_app:
         visible=False,
     )
     text_output = gr.HighlightedText(
-        label="Suggestions",
-        combine_adjacent=True,
+        label = "Suggestions",
+        combine_adjacent = True,
     ).style(color_map={"+": "green", "-": "red"})
     text_button = gr.Button("Submit")
     
