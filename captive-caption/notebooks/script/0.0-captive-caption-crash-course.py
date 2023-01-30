@@ -337,13 +337,15 @@ df[IMAGE_URI_COL] = df.image_url.map(lambda url: str(DEMO_PATH / Path(url).name)
 
 
 for _, row in tqdm(df.iterrows(), total=len(df)):
-    with tempfile.NamedTemporaryFile() as temp:
-        temp_path = Path(temp.name)
-        urllib.request.urlretrieve(row.image_url, temp.name)
-        with temp_path.open("rb") as image_file:
-            image_bytes = image_file.read()
-            with CloudPath(row[IMAGE_URI_COL]).open("wb") as cloud_image_file:
-                cloud_image_file.write(image_bytes)
+    cloud_path = CloudPath(row[IMAGE_URI_COL])
+    if not cloud_path.exists():
+        with tempfile.NamedTemporaryFile() as temp:
+            temp_path = Path(temp.name)
+            urllib.request.urlretrieve(row.image_url, temp.name)
+            with temp_path.open("rb") as image_file:
+                image_bytes = image_file.read()
+                with cloud_path.open("wb") as cloud_image_file:
+                    cloud_image_file.write(image_bytes)
 
 
 # Now our data is in s3, and our Data Frame has the s3 uri we need to log to Gantry!
