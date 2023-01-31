@@ -24,11 +24,12 @@ def load_to_gantry(df: pd.DataFrame, gantry_env: str):
     gantry.log_records(
         application=GantryConfig.GANTRY_APP_NAME, 
         timestamps=[ts.to_pydatetime() for ts in pd.to_datetime(df["timestamp"])],
-        inputs=df[["text", "account_age_days", "username"]],
+        inputs=df[["text", "account_age_days"]],
+        row_tags=df[["username"]].to_dict("records"),
         outputs=df["inference"],
         feedbacks=df["correction_accepted"],
         feedback_ids=df["uuid"].to_list(),
-        tags={"env": gantry_env},
+        global_tags={"env": gantry_env},
         as_batch=True
     )
 

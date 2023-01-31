@@ -5,6 +5,7 @@ import gradio as gr
 from difflib import Differ
 import uuid
 import os
+import random
 
 gantry.init(api_key=GantryConfig.GANTRY_API_KEY)
 model_wrapper = ModelWrapper(ModelConfig.MODEL_DIR)
@@ -14,12 +15,16 @@ def correct_grammar(text, join_key):
     corrected_sentence = model_wrapper.infer(text)
     gantry.log_record(
         application = GantryConfig.GANTRY_APP_NAME,
-        inputs = {"text": text},
+        inputs = {
+            "text": text, 
+            "account_age_days": get_test_account_age()
+        },
         join_key = join_key,
         outputs = {"inference": corrected_sentence},
         tags = {
             "env": GantryConfig.GANTRY_PROD_ENV,
-            "test-tag": "my-test-data"
+            "test-tag": "my-test-data",
+            "username": get_test_username()
         }
     )
     return corrected_sentence
@@ -39,9 +44,17 @@ def send_feedback(join_key):
         join_key = join_key,
         tags = {
             "env": GantryConfig.GANTRY_PROD_ENV,
-            "test-tag": "my-test-data"
+            "test-tag": "my-test-data",
         }
     )
+
+def get_test_username() -> str:
+    goats = ["thefed", "rafa", "djoker"]
+    return random.choice(goats)
+
+def get_test_account_age():
+    return random.randint(0, 15)
+
 
 with gr.Blocks() as gec_app:
     join_key = str(uuid.uuid1())
