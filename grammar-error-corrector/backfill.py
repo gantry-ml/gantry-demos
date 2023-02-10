@@ -1,8 +1,6 @@
 import argparse
 import pandas as pd
 import datetime
-import boto3
-import tempfile
 
 from config import logger, GantryConfig, DataStorageConfig
 import gantry
@@ -12,12 +10,7 @@ gantry.init(api_key=GantryConfig.GANTRY_API_KEY, send_in_background=False)
 
 def retrieve_data() -> pd.DataFrame:
     logger.info("Retrieving demo data from public S3 bucket")
-    tempfile_handle = tempfile.NamedTemporaryFile()
-    s3_client = boto3.client("s3", region_name="us-west-2")
-    s3_client.download_file(DataStorageConfig.S3_BUCKET, DataStorageConfig.S3_OBJECT, tempfile_handle.name)
-    df = pd.read_csv(tempfile_handle.name, engine="c", lineterminator='\n')
-    tempfile_handle.close()
-    return df
+    return pd.read_csv(DataStorageConfig.DATASET_URL, engine="c", lineterminator='\n')
 
 def load_to_gantry(df: pd.DataFrame, gantry_env: str):
     logger.info(f"Logging {len(df)} to Gantry environment {gantry_env}")
