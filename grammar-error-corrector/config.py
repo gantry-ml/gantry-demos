@@ -15,6 +15,7 @@ class GantryConfig:
 
 # Setup logging
 logger = logging.getLogger(GantryConfig.GANTRY_APP_NAME)
+
 logger.setLevel(logging.INFO)
 
 # A location for pulling the model
@@ -26,7 +27,6 @@ class ModelConfig:
 # Storage Config
 @dataclass
 class DataStorageConfig:
-    S3_BUCKET: str = "gantry-demo-data"
-    S3_OBJECT: str = "gec-demo-data.csv"
+    DATASET_URL = "https://gantry-demo-data.s3.us-west-2.amazonaws.com/gec-demo-data.csv"
     MIN_DATE: datetime = datetime.datetime(2022, 3, 30, 0 ,0)
     MAX_DATE: datetime = datetime.datetime(2022, 5, 1, 0, 0)

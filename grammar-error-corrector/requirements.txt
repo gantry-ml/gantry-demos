@@ -2,5 +2,4 @@ gantry
 gradio
 transformers
 torch
-boto3
 datasets
