@@ -3,5 +3,6 @@ gantry
 gradio
 jupyterlab
 python-dotenv
+nb-black
 torch
 transformers
