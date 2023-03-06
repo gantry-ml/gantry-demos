@@ -2,15 +2,26 @@ import os
 import logging
 from dataclasses import dataclass
 import datetime
+from dotenv import dotenv_values
 
 # Basic
 # PROJECT_NAME = "gantry-demo-data-backfill"
 
+config = dotenv_values(".env")
+if config:
+    os.environ.update(config)
+
+GANTRY_API_KEY = os.environ.get("GANTRY_API_KEY")
+if not GANTRY_API_KEY:
+    raise ValueError("GANTRY_API_KEY not set in environment or .env file.")
+
+GANTRY_APP_NAME = os.environ.get("GANTRY_APP_NAME", "gec-demo-app")
+
 
 @dataclass
 class GantryConfig:
-    GANTRY_API_KEY: str = os.environ.get("GANTRY_API_KEY")
-    GANTRY_APP_NAME: str = "gec-demo-app"
+    GANTRY_API_KEY: str = GANTRY_API_KEY
+    GANTRY_APP_NAME: str = GANTRY_APP_NAME
     GANTRY_PROD_ENV: str = "prod"
     GANTRY_EVAL_ENV: str = "eval"
 
