@@ -11,23 +11,22 @@ gantry.init(api_key=GantryConfig.GANTRY_API_KEY)
 model_wrapper = ModelWrapper(ModelConfig.MODEL_DIR)
 gantry_logo = os.path.join(os.path.dirname(__file__), "gantry-logo.png")
 
+
 def correct_grammar(text, join_key):
     corrected_sentence = model_wrapper.infer(text)
     gantry.log_record(
-        application = GantryConfig.GANTRY_APP_NAME,
-        inputs = {
-            "text": text, 
-            "account_age_days": get_test_account_age()
-        },
-        join_key = join_key,
-        outputs = {"inference": corrected_sentence},
-        tags = {
+        application=GantryConfig.GANTRY_APP_NAME,
+        inputs={"text": text, "account_age_days": get_test_account_age()},
+        join_key=join_key,
+        outputs={"inference": corrected_sentence},
+        tags={
             "env": GantryConfig.GANTRY_PROD_ENV,
             "test-tag": "my-test-data",
-            "username": get_test_username()
-        }
+            "username": get_test_username(),
+        },
     )
     return corrected_sentence
+
 
 def diff_texts(input_text, join_key):
     corrected = correct_grammar(input_text, join_key)
@@ -37,20 +36,23 @@ def diff_texts(input_text, join_key):
         for token in d.compare(input_text, corrected)
     ]
 
+
 def send_feedback(join_key):
     gantry.log_record(
-        application = GantryConfig.GANTRY_APP_NAME,
-        feedback = {"correction_accepted": True},
-        join_key = join_key,
-        tags = {
+        application=GantryConfig.GANTRY_APP_NAME,
+        feedback={"correction_accepted": True},
+        join_key=join_key,
+        tags={
             "env": GantryConfig.GANTRY_PROD_ENV,
             "test-tag": "my-test-data",
-        }
+        },
     )
+
 
 def get_test_username() -> str:
     goats = ["thefed", "rafa", "djoker"]
     return random.choice(goats)
+
 
 def get_test_account_age():
     return random.randint(0, 15)
@@ -71,12 +73,14 @@ with gr.Blocks() as gec_app:
         visible=False,
     )
     text_output = gr.HighlightedText(
-        label = "Suggestions",
-        combine_adjacent = True,
+        label="Suggestions",
+        combine_adjacent=True,
     ).style(color_map={"+": "green", "-": "red"})
     text_button = gr.Button("Submit")
-    
-    text_button.click(diff_texts, inputs=[text_input, join_key_input], outputs=text_output)
+
+    text_button.click(
+        diff_texts, inputs=[text_input, join_key_input], outputs=text_output
+    )
 
     with gr.Accordion("Send Feedback"):
         gr.Markdown("If you liked the suggestion, tell us about it by clicking accept!")
