@@ -11,7 +11,11 @@ gantry.init(api_key=GantryConfig.GANTRY_API_KEY, send_in_background=False)
 
 def retrieve_data() -> pd.DataFrame:
     logger.info("Retrieving demo data from public S3 bucket")
-    return pd.read_csv(DataStorageConfig.DATASET_URL, engine="c", lineterminator="\n")
+    return pd.read_csv(
+        DataStorageConfig.DATASET_URL,
+        engine="c",
+        lineterminator="\n",
+    )
 
 
 def load_to_gantry(df: pd.DataFrame, gantry_env: str):
@@ -30,7 +34,9 @@ def load_to_gantry(df: pd.DataFrame, gantry_env: str):
 
 
 def _utc_time_helper(year: int, month: int, day: int) -> datetime.datetime:
-    return datetime.datetime(year, month, day, 0, 0).astimezone(datetime.timezone.utc)
+    return datetime.datetime(year, month, day, 0, 0).astimezone(
+        datetime.timezone.utc,
+    )
 
 
 def _correction_filter_helper(correction_accepted: bool) -> list:
@@ -52,10 +58,14 @@ def _env_filter_helper() -> list:
     ]
 
 
-LAST_WEEK_START, LAST_WEEK_END = _utc_time_helper(2022, 4, 16), _utc_time_helper(
-    2022, 4, 22
+LAST_WEEK_START = _utc_time_helper(2022, 4, 16)
+LAST_WEEK_END = _utc_time_helper(
+    2022,
+    4,
+    22,
 )
-THIS_WEEK_START, THIS_WEEK_END = LAST_WEEK_END, _utc_time_helper(2022, 4, 26)
+THIS_WEEK_START = LAST_WEEK_END
+THIS_WEEK_END = _utc_time_helper(2022, 4, 26)
 THIS_WEEK_VIEW, LAST_WEEK_VIEW = "this-week", "last-week"
 ACCEPTED_VIEW, REJECTED_VIEW = "accepted", "rejected"
 
