@@ -1,10 +1,7 @@
 import os
 import logging
-from pathlib import Path
 from dataclasses import dataclass
 import datetime
-# Basic
-# PROJECT_NAME = "gantry-demo-data-backfill"
 
 @dataclass
 class GantryConfig:
