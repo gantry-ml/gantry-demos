@@ -1,0 +1,14 @@
+artifacts:
+  folder: artifacts
+dataset_info: README.md
+dataset_name: casey-gec-test-new-account-curator-1411474
+features:
+  __time: Datetime
+  inputs.account_age_days: Integer
+  inputs.text: Text
+  outputs.inference: Text
+labels:
+  feedback.correction_accepted: Boolean
+tabular_files:
+  file_type: csv
+  folder: tabular_manifests
