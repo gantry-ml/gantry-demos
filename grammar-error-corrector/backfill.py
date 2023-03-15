@@ -8,14 +8,20 @@ import gantry.query as gantry_query
 
 gantry.init(api_key=GantryConfig.GANTRY_API_KEY, send_in_background=False)
 
+
 def retrieve_data() -> pd.DataFrame:
     logger.info("Retrieving demo data from public S3 bucket")
-    return pd.read_csv(DataStorageConfig.DATASET_URL, engine="c", lineterminator='\n')
+    return pd.read_csv(
+        DataStorageConfig.DATASET_URL,
+        engine="c",
+        lineterminator="\n",
+    )
+
 
 def load_to_gantry(df: pd.DataFrame, gantry_env: str):
     logger.info(f"Logging {len(df)} to Gantry environment {gantry_env}")
     gantry.log_records(
-        application=GantryConfig.GANTRY_APP_NAME, 
+        application=GantryConfig.GANTRY_APP_NAME,
         timestamps=[ts.to_pydatetime() for ts in pd.to_datetime(df["timestamp"])],
         inputs=df[["text", "account_age_days"]],
         row_tags=df[["username"]].to_dict("records"),
@@ -23,22 +29,46 @@ def load_to_gantry(df: pd.DataFrame, gantry_env: str):
         feedbacks=df["correction_accepted"],
         feedback_ids=df["uuid"].to_list(),
         global_tags={"env": gantry_env},
-        as_batch=True
+        as_batch=True,
     )
 
+
 def _utc_time_helper(year: int, month: int, day: int) -> datetime.datetime:
-    return datetime.datetime(year, month, day, 0, 0).astimezone(datetime.timezone.utc)
+    return datetime.datetime(year, month, day, 0, 0).astimezone(
+        datetime.timezone.utc,
+    )
+
 
 def _correction_filter_helper(correction_accepted: bool) -> list:
-    return [{"boolean_query": correction_accepted, "feature_name": "feedback.correction_accepted"}]
+    return [
+        {
+            "boolean_query": correction_accepted,
+            "feature_name": "feedback.correction_accepted",
+        }
+    ]
+
 
 def _env_filter_helper() -> list:
-    return [{"category_query": [GantryConfig.GANTRY_PROD_ENV], "dtype": "tag", "feature_name": "env"}]
+    return [
+        {
+            "category_query": [GantryConfig.GANTRY_PROD_ENV],
+            "dtype": "tag",
+            "feature_name": "env",
+        }
+    ]
 
-LAST_WEEK_START, LAST_WEEK_END = _utc_time_helper(2022, 4, 16), _utc_time_helper(2022, 4, 22)
-THIS_WEEK_START, THIS_WEEK_END = LAST_WEEK_END, _utc_time_helper(2022, 4, 26)
+
+LAST_WEEK_START = _utc_time_helper(2022, 4, 16)
+LAST_WEEK_END = _utc_time_helper(
+    2022,
+    4,
+    22,
+)
+THIS_WEEK_START = LAST_WEEK_END
+THIS_WEEK_END = _utc_time_helper(2022, 4, 26)
 THIS_WEEK_VIEW, LAST_WEEK_VIEW = "this-week", "last-week"
 ACCEPTED_VIEW, REJECTED_VIEW = "accepted", "rejected"
+
 
 def create_views(application_name: str):
     # This week view
@@ -48,7 +78,7 @@ def create_views(application_name: str):
         name=THIS_WEEK_VIEW,
         start_time=THIS_WEEK_START,
         end_time=THIS_WEEK_END,
-        data_filters=_env_filter_helper()
+        data_filters=_env_filter_helper(),
     )
     # Last week view
     logger.info(f"Creating view named {LAST_WEEK_VIEW} for {application_name}")
@@ -57,7 +87,7 @@ def create_views(application_name: str):
         name=LAST_WEEK_VIEW,
         start_time=LAST_WEEK_START,
         end_time=LAST_WEEK_END,
-        data_filters=_env_filter_helper()
+        data_filters=_env_filter_helper(),
     )
 
     # Accepted view
@@ -67,7 +97,7 @@ def create_views(application_name: str):
         name=ACCEPTED_VIEW,
         start_time=THIS_WEEK_START,
         end_time=THIS_WEEK_END,
-        data_filters=_env_filter_helper() + _correction_filter_helper(True) 
+        data_filters=_env_filter_helper() + _correction_filter_helper(True),
     )
 
     # Rejected view
@@ -77,8 +107,9 @@ def create_views(application_name: str):
         name=REJECTED_VIEW,
         start_time=THIS_WEEK_START,
         end_time=THIS_WEEK_END,
-        data_filters=_env_filter_helper() + _correction_filter_helper(True)
+        data_filters=_env_filter_helper() + _correction_filter_helper(True),
     )
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -93,4 +124,3 @@ if __name__ == "__main__":
             load_to_gantry(data, GantryConfig.GANTRY_PROD_ENV)
         if args.create_views:
             create_views(GantryConfig.GANTRY_APP_NAME)
-    

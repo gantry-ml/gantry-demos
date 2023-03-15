@@ -1,5 +1,8 @@
+datasets
 gantry
 gradio
-transformers
+jupyterlab
+python-dotenv
+nb-black
 torch
-datasets
+transformers
