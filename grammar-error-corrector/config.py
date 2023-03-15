@@ -4,9 +4,6 @@ from dataclasses import dataclass
 import datetime
 from dotenv import dotenv_values
 
-# Basic
-# PROJECT_NAME = "gantry-demo-data-backfill"
-
 config = dotenv_values(".env")
 if config:
     os.environ.update(config)
