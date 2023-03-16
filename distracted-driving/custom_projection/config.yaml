@@ -6,4 +6,4 @@ function_definition:
   output:
     type: Boolean
   inputs:
-    - type: Categorical 
+    - type: Text 
