@@ -1,0 +1,4 @@
+gantry
+jupyterlab
+python-dotenv
+pandas
