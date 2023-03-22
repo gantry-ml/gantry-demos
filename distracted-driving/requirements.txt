@@ -1,0 +1,5 @@
+gantry
+jupyterlab
+nb_black
+python-dotenv
+pandas

@@ -1,0 +1,9 @@
+version: 1
+function_definition:
+  projection_name: is_distracted
+  entrypoint: custom_projections.py
+  function_name: is_distracted
+  output:
+    type: Boolean
+  inputs:
+    - type: Text 
