@@ -6,3 +6,4 @@ python-dotenv
 nb-black
 torch
 transformers
+pythhon-dotenv
