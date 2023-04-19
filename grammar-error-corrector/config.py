@@ -12,7 +12,7 @@ GANTRY_API_KEY = os.environ.get("GANTRY_API_KEY")
 if not GANTRY_API_KEY:
     raise ValueError("GANTRY_API_KEY not set in environment or .env file.")
 
-GANTRY_APP_NAME = os.environ.get("GANTRY_APP_NAME", "gec-demo-app")
+GANTRY_APP_NAME = os.environ.get("GANTRY_APP_NAME", "gec-demo-app-sameena-0")
 
 
 @dataclass

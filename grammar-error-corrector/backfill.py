@@ -20,14 +20,28 @@ def retrieve_data() -> pd.DataFrame:
 
 def load_to_gantry(df: pd.DataFrame, gantry_env: str):
     logger.info(f"Logging {len(df)} to Gantry environment {gantry_env}")
+
+    # There are two date formats in the dataset; parse them separately
+    datetime = pd.to_datetime(
+        df["timestamp"],
+        format = "%Y-%m-%d %H:%M:%S.%f%z",
+        errors="coerce",
+        )
+    datetime = datetime.fillna(
+        pd.to_datetime(
+            df["timestamp"],
+            format="%Y-%m-%d %H:%M:%S%z",
+            errors="coerce"),
+        )
+
     gantry.log_records(
         application=GantryConfig.GANTRY_APP_NAME,
-        timestamps=[ts.to_pydatetime() for ts in pd.to_datetime(df["timestamp"])],
+        timestamps=[ts.to_pydatetime() for ts in datetime],
         inputs=df[["text", "account_age_days"]],
         row_tags=df[["username"]].to_dict("records"),
         outputs=df["inference"],
         feedbacks=df["correction_accepted"],
-        feedback_ids=df["uuid"].to_list(),
+        join_keys=df["uuid"].to_list(),
         global_tags={"env": gantry_env},
         as_batch=True,
     )
