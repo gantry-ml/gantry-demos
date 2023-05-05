@@ -7,8 +7,11 @@ import gantry
 from gantry.query.time_window import TimeWindow
 
 gantry.init(api_key=GantryConfig.GANTRY_API_KEY, send_in_background=False)
-# application = gantry.create_application(GantryConfig.GANTRY_APP_NAME)
-application = gantry.get_application(GantryConfig.GANTRY_APP_NAME)
+
+try:
+    application = gantry.create_application(GantryConfig.GANTRY_APP_NAME)
+except gantry.exceptions.GantryRequestException:
+    application = gantry.get_application(GantryConfig.GANTRY_APP_NAME)
 
 def retrieve_data() -> pd.DataFrame:
     logger.info("Retrieving demo data from public S3 bucket")
