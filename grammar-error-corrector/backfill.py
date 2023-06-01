@@ -116,7 +116,7 @@ def create_queries():
     logger.info(f"Creating query named {REJECTED_QUERY} for {application._name}")
     query = application.query(
         time_window=TimeWindow(start_time=THIS_WEEK_START, end_time=THIS_WEEK_END),
-        filters=_env_filter_helper() + _correction_filter_helper(True),
+        filters=_env_filter_helper() + _correction_filter_helper(False),
     )
     application.save_query(REJECTED_QUERY, query)
 
