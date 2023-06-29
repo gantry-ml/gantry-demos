@@ -1,0 +1,5 @@
+gantry
+gradio
+jupyterlab
+python-dotenv
+openai
