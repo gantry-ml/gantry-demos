@@ -7,6 +7,8 @@ from openai.util import convert_to_dict
 load_dotenv()
 
 GANTRY_API_KEY = os.getenv("GANTRY_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 gantry.init(api_key=GANTRY_API_KEY)
 
 my_llm_app = gantry.get_application("my-app-docs")
@@ -27,9 +29,9 @@ def generate(user_input_value):
     }
     results = openai.Completion.create(**request)
 
-    my_llm_app.log_completion(
-        open_ai_api_request=request,
-        open_ai_api_response=convert_to_dict(results),
+    my_llm_app.log_llm_data(
+        api_request=request,
+        api_response=convert_to_dict(results),
         request_attributes={"prompt_values": values},
         version=version.version_number,
     )
